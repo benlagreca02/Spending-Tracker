@@ -1,4 +1,7 @@
-
+import imaplib
+import email
+from email.header import decode_header
+# import datetime
 
 # Given a username, password, label, and mailserver, log in and get/manage
 # emails
@@ -9,25 +12,34 @@ class MailReader:
         self.imap.login(username, password)
         # the mailbox to pull from
         self.label = label
+    
+    def __del__(self):
+        self.imap.logout()
 
-    # returns list of mail subjects that are unread
-    def readUnreadMailSubjects(self):
+    # Will mark found emails as read
+    def readUnreadMailSubjectsAndDates(self):
         # returns number of emails in the box as (status, [num_mails])
         self.imap.select(mailbox=self.label)
 
         # Returns space sep string, in a list of matching mail id's 
         # (status, [ids_str])
         status, ids_str = self.imap.search(None, 'UNSEEN')
-        ids = messages[0].split()
+        ids = ids_str[0].split()
 
-        subjects = set()
+        # we don't need order, and there is no duplicates
+        subject_time_tuples = set()
         for email_id in ids:
             # (typ, [data, ...])
             # 'data' are tuples of message part envelope and data.
-            status, data = mail.fetch(email_id, '(RFC822)')
+            status, msg_data = self.imap.fetch(email_id, '(RFC822)')
             raw_data = msg_data[0][1]
             msg = email.message_from_bytes(raw_data)
             subject, encoding = decode_header(msg['Subject'])[0]
             if isinstance(subject, bytes):
                 subject = subject.decode(encoding or 'utf-8')
-            subjects.append(subject)
+            date_as_str = msg['Date']
+            # Emails are automated, very unlikely to be malformed
+            datetime_from_email = email.utils.parsedate_to_datetime(date_as_str)
+
+            subject_time_tuples.add( (subject, datetime_from_email) )
+        return subject_time_tuples

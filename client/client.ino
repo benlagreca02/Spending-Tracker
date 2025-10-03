@@ -26,7 +26,7 @@ AsyncUDP udp;
 
 void onUdpPacket(AsyncUDPPacket pkt){
     lcd.setCursor(0,0);
-    lcd.print("Got: ");
+    lcd.print("Spent this month:");
     lcd.setCursor(0,1);
     lcd.print((char*)pkt.data());
 }
