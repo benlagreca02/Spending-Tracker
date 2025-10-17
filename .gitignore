@@ -3,3 +3,4 @@ WiFiCredentials.h
 client/build/
 server/__pycache__/
 client/.cli-config.yml
+server/*.db

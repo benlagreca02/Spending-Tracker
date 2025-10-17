@@ -1,25 +1,27 @@
 import imaplib
 import email
 from email.header import decode_header
-# import datetime
+import datetime
+from zoneinfo import ZoneInfo
+
 
 # Given a username, password, label, and mailserver, log in and get/manage
 # emails
-
 class MailReader:
+    # "label" is google's name for mailbox
     def __init__(self, username, password, label, server):
         self.imap = imaplib.IMAP4_SSL(server, timeout=10)
         self.imap.login(username, password)
-        # the mailbox to pull from
         self.label = label
+
+        # returns number of emails in the box as (status, [num_mails])
+        self.imap.select(mailbox=self.label)
     
     def __del__(self):
         self.imap.logout()
 
     # Will mark found emails as read
-    def readUnreadMailSubjectsAndDates(self):
-        # returns number of emails in the box as (status, [num_mails])
-        self.imap.select(mailbox=self.label)
+    def readUnreadSubjectsAndTimes(self) -> set[tuple[str, datetime]]:
 
         # Returns space sep string, in a list of matching mail id's 
         # (status, [ids_str])
@@ -38,7 +40,6 @@ class MailReader:
             if isinstance(subject, bytes):
                 subject = subject.decode(encoding or 'utf-8')
             date_as_str = msg['Date']
-            # Emails are automated, very unlikely to be malformed
             datetime_from_email = email.utils.parsedate_to_datetime(date_as_str)
 
             subject_time_tuples.add( (subject, datetime_from_email) )
