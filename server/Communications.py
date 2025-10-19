@@ -28,7 +28,7 @@ class Communicator:
         formatted += chr(5) * fully_filled_chars
 
         if fully_filled_chars < CHARS:
-            lookup = {1: chr(1), 2: chr(2), 3: chr(3), 4: chr(4)}
+            lookup = {0: ' ', 1: chr(1), 2: chr(2), 3: chr(3), 4: chr(4)}
             lastChar = lookup[partial_fill_pixels]
             formatted += lastChar
         
