@@ -6,6 +6,7 @@ from TransactionParser import parseEmailData, ChaseParser
 from Transaction import Transaction
 from MailReader import MailReader
 from Ledger import Ledger
+from Communications import Communicator
 
 IMAP_SERVER = "imap.gmail.com"
 LABEL = 'Banking/ChaseCharges'
@@ -14,6 +15,9 @@ CREDSFILE = 'credentials.txt'
 PARSER = ChaseParser
 
 DATABASE_FILE = "transactions.db"
+
+IP_ADDR = "192.168.1.180"
+IP_PORT = 9877
 
 # PLACEHOLDER VALUE
 # need to refine this a LOT later (for categories)
@@ -61,6 +65,9 @@ def main():
     percent = spent/MONTHLY_BUDGET * 100.0
 
     print(f"Percent spent this month: {percent:.2f}%")
+    print("sending to LCD")
+    comms = Communicator(IP_ADDR, IP_PORT)
+    comms.send_percent_lcd(percent)
 
 if __name__ == "__main__":
     main()

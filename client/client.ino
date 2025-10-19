@@ -7,6 +7,8 @@
 // const char* password = "<YOUR WIFI PASSOWRD>";
 #include "WiFiCredentials.h"
 
+#include "characters.h"
+
 
 IPAddress staticLocalIp(192, 168, 1, 180);
 IPAddress gateway(192,168,1,1);
@@ -26,13 +28,33 @@ AsyncUDP udp;
 
 void onUdpPacket(AsyncUDPPacket pkt){
     lcd.setCursor(0,0);
-    lcd.print("Spent this month:");
-    lcd.setCursor(0,1);
-    lcd.print((char*)pkt.data());
+    String msg = pkt.readString();
+
+    // Ensure message is at least 32 characters
+    while (msg.length() < 32) {
+        msg += " "; // pad with spaces if too short
+    }
+
+    // Display first 16 chars on row 0
+    lcd.setCursor(0, 0);
+    lcd.print(msg.substring(0, 16));
+
+    // Display next 16 chars on row 1
+    lcd.setCursor(0, 1);
+    lcd.print(msg.substring(16, 32));
 }
 
 void setup() {
     lcd.init();                      // Initialize the LCD
+
+
+    // Initalize custom characters from characters.h
+    lcd.createChar(1, one);
+    lcd.createChar(2, two);
+    lcd.createChar(3, three);
+    lcd.createChar(4, four);
+    lcd.createChar(5, full);
+
     lcd.backlight();                 // Turn on the backlight
 
     lcd.setCursor(0, 0);
@@ -69,6 +91,8 @@ void setup() {
       lcd.clear();
       lcd.setCursor(0,0);
       lcd.print("lstn on prt 9877");
+      lcd.setCursor(0,1);
+      lcd.print("Send away!");
       udp.onPacket(onUdpPacket);
     }
 }
